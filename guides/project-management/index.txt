@@ -7,8 +7,7 @@ In this guide we will explain how to create new RubyMotion projects, then config
 Creation
 --------
 
-To create a new RubyMotion project, pass the +create+ command to '/usr/bin/motion'. It will create a new project directory.
-
+RubyMotion の新規プロジェクトを作るには、'/usr/bin/motion' に +create+ コマンドを指定します。このコマンドにより新規プロジェクトのディレクトリが作成されます。
 ----
 $ motion create Hello
 $ cd Hello
@@ -19,60 +18,60 @@ Rakefile app resources spec
 Project Anatomy
 ~~~~~~~~~~~~~~~
 
-The following table illustrates the anatomy of a project directory.
+下の表は、プロジェクトのディレクトリ構成について示したものです。
 
 [options="header,autowidth"]
 |=========================
-| File/Directory | Purpose 
-| 'Rakefile' | This file contains the configuration of the project, as well as a default set of tasks. It can be edited to change the configuration or add new tasks.
-| '.gitignore' | This file contains file patterns that should be ignored by the source control management software (for instance, build files). This file is used by Git, but it can be ported to other SCMs.
-| 'app/' | This directory contains the Ruby code of the project. In a new project, a 'main.rb' file is created automatically.
-| 'resources/' | This directory contains the resources files of the project, such as images or sounds. In a new project, this directory is empty.
-|'spec/' | This directory contains the specification files of the application. In a new project, a default specification file is created automatically.
+| File/Directory | Purpose
+| 'Rakefile' | このファイルは、デフォルトのタスクとプロジェクトの設定が記述されています。設定の変更や、新しいタスクを追加できます。
+| '.gitignore' | Git を用いたソースコードのバージョン管理で、管理の対象から外すファイルを指定するのに用います。
+| 'app/' | プロジェクトでの Ruby コードをこのディレクトリに置きます。新規にプロジェクトを作成すると、'main.rb' というファイルが自動的に生成されます。
+| 'resources/' | このディレクトリには、画像やサウンドファイルなどのプロジェクトで使用するリソースファイルを置きます。新規プロジェクトの作成直後は、ファイルはありません。
+|'spec/' | このディレクトリには、アプリケーションの spec やテストファイルを置きます。新規にプロジェクトを作成すると、デフォルトの spec ファイルが自動的に生成されます。
 |=========================
 
-RubyMotion projects are based on Rake. Essential rake tasks will be covered in the following sections. To see the full list of available tasks:
+RubyMotion のプロジェクトは Rake をベースとしています。以降のセクションで、基本的な Rake タスクについて扱います。利用できるタスクの全リストを見たい場合には、以下のように Terminal で実行します。
 
 ----
 $ rake -T
 ----
 
-TIP: Rake is the de-facto build system framework for Ruby. It is similar to make and ships by default in OSX.
+TIP: Rake は Ruby での標準的なビルドシステムです。同様のものとして、Mac OS X では標準で make が付属しています。
 
 Configuration
 -------------
 
-The +rake config+ task will dump the project configuration. Each configuration variable has a sensible default value that can be manually overriden in the 'Rakefile' file.
++rake config+ タスクは、プロジェクトの設定をダンプします。各設定値には適切なデフォルト値が設定されており、'Rakefile' を編集することで設定を変更できます。
 
 [options="header,autowidth"]
 |====
 | Variable | Discussion
-|+name+ | Project name, as a +String+. The default value is the name passed to +motion create+.
-|+version+ | Project version, as a +String+. The default value is +"1.0"+.
-|+identifier+ | Project identifier, as a +String+, in reverse DNS format. The default value is the concatenation of +"com.yourcompany."+ and the +name+ variable.
-|+delegate_class+ | Name of the application delegate class, as a +String+. The default value is +"AppDelegate"+ and the class is defined in 'app/main.rb'.
-|+files+ | Project files, as an +Array+. The default value is the result of the following expression: +Dir.glob('./app/**/*.rb')+ (every '.rb' file in the 'app' directory).
-|+frameworks+ | The names of iOS frameworks to link against, as an +Array+. It should contain the names of public iOS frameworks, typically present in '/System/Library/Frameworks'. The build system is capable of dealing with dependencies, for instance there is no need to mention +"CoreFoundation"+ if you have +"Foundation"+. The default value is +['UIKit', 'Foundation', 'CoreGraphics']+.
-| +libs+ | Library paths to link against, as an +Array+. It should contain paths to public, system libraries, for example +"/usr/lib/libz.dylib"+. The default value is +[]+, an empty array.
-|+build_dir+ | Path to the directory for build products, as a +String+. It must be relative to the project directory. The directory will be created by the build system if it does not exist yet. If it cannot be created, a temporary directory will be used instead. The default value is +"build"+.
-|+resources_dir+ | Directory for resources files, as a +String+. It must be relative to the project directory. The default value is +"resources"+.
-|+specs_dir+ | Directory for specification files, as a +String+. It must be relative to the project directory. The default value is +"spec"+.
-|+icons+ | List of names of resource files to use for icons, as an +Array+. For example, +["Icon.png", "Icon-72.png", "Icon@2x.png"]+. The files must conform to the http://developer.apple.com/library/ios/#documentation/userexperience/conceptual/mobilehig/IconsImages/IconsImages.html[HIG guidelines]. The default value is +[]+, an empty array.
-|+fonts+ | List of names of font files in the resources directory, as an +Array+. For example, +["Inconsolata.otf"]+. The fonts will then be properly taken into account when generating the application. The default value is the list of all '.ttf' and '.otf' files in the resources directory. It is recommended to keep the default value.
-|+prerendered_icon+ | Whether the image files in +icons+ are already pre-rendered according to the HIG guidelines. If +false+, iOS will apply a reflective shine effect on the icons. The default value is +false+.
-|+device_family+ | Family of devices to support. Possible values can be: +iphone+, +ipad+ or +[:iphone, :ipad]+ (for a universal application). The default value is +:iphone+.
-|+interface_orientations+ | Supported interface orientations. Value must be an +Array+ of one or more of the following symbols: +:portrait+, +:landscape_left+, +:landscape_right+, and +:portrait_upside_down+. The default value is +[:portrait, :landscape_left, :landscape_right]+.
-|+xcode_dir+ | Directory where Xcode is installed, as a +String+. The default value is determined by the returned value of '/usr/bin/xcode-select -printPath', or, if invalid, '/Applications/Xcode.app/Contents/Developer'. Giving a new value to this setting must be done first, before changing other settings.
-|+sdk_version+ | Version number of the SDK to use, as a +String+. The default value is the version number of the most recent supported SDK in +xcode_dir+. Example: +"5.0"+.
-|+deployment_target+ | Version number of the SDK to target, as a +String+. The default value is the value of +sdk_version+, but can be lowered to target older versions of iOS. Example: +"4.3"+.
-|+codesign_certificate+ | The name of the certificate to use for codesigning, as a +String+. The default value is the first iPhone Developer certificate found in keychain. Example: +"iPhone Developer: Darth Vader (A3LKZY369Q)"+.
-|+provisioning_profile+ | Path to the provisioning profile to use for deployment, as a +String+. The default value is the first '.mobileprovision' file found in '~/Library/MobileDevice/Provisioning'.
-|+seed_id+ | The application provisioning identifier, as a +String+. It is a unique (within the App Store) 10 characters identifier generated by the provisioning portal. The default value is the first application identifier found in +provisioning_profile+.
+|+name+ | プロジェクト名 (+String+)。+motion create+ で指定した名前となります。
+|+version+ | プロジェクトのバージョン (+String+)。デフォルト値は +"1.0"+ です。
+|+identifier+ | プロジェクト識別子 (+String+)。逆 DNS 形式で指定します。デフォルト値は +"com.yourcompany."+ と +name+ 変数の値を結合した値です。
+|+delegate_class+ | アプリケーションの delegate クラス名 (+String+)。デフォルト値は +"AppDelegate"+ で、このクラスは 'app/main.rb' で定義されています。
+|+files+ | プロジェクトで使用するファイル (+Array+)。デフォルト値は +Dir.glob('./app/**/*.rb')+ を評価した結果となります ('app' ディレクトリ内のすべての '.rb')。
+|+frameworks+ | リンクする iOS フレームワークの名前 (+Array+)。'/System/Library/Frameworks' で示されるような、public な iOS フレームワークの名前を指定します。ビルドシステムは依存関係に対処できます。たとえば、+"Foundation"+ を利用していれば +"CoreFoundation"+ を指定する必要はありません。デフォルト値は +["UIKit", "Foundation", "CoreGraphics"]+ です。
+| +libs+ | リンクするライブラリのパス (+Array+)。システムライブラリの +"/usr/lib/libz.dylib"+ のような、public なライブラリのパスを指定します。デフォルト値は空の配列 +[]+ です。
+|+build_dir+ | アプリをビルドする際に使用するディレクトリのパス (+String+)。プロジェクトディレクトリからの相対パスを指定します。指定されたディレクトリが存在しない場合には、ビルドシステムによって作成されます。もしディレクトリが作成できない場合、テンポラリディレクトリが代わりに使われます。デフォルト値は +"build"+ です。
+|+resources_dir+ | リソースファイルを置くディレクトリのパス (+String+)。プロジェクトディレクトリからの相対パスを指定する必要があります。デフォルト値は +"resources"+ です。
+|+specs_dir+ | spec ファイルを置くディレクトリのパス (+String+)。プロジェクトディレクトリからの相対パスを指定する必要があります。デフォルト値は +"spec"+ です。
+|+icons+ | アイコンに使用するリソースファイル名のリスト (+Array+)。例 : +["Icon.png", "Icon-72.png", "Icon@2x.png"]+. アイコンファイルについては http://developer.apple.com/library/ios/#documentation/userexperience/conceptual/mobilehig/IconsImages/IconsImages.html[HIG guidelines] を確認してください。デフォルト値は空の配列 +[]+ です。
+|+fonts+ | リソースディレクトリ内のフォントファイル名のリスト (+Array+)。例 : +["Inconsolata.otf"]+. アプリケーションを生成する際に、フォントが適切に適用されます。デフォルト値は、リソースディレクトリ内のすべての '.ttf' と '.otf' のリストです。デフォルト値を使うことを推奨します。
+|+prerendered_icon+ | +icons+ のアイコンファイルが、HIG guidelines に従ってあらかじめ描画されているかを指定します。+false+ を指定すると、iOS がアイコンにリフレクション効果を適用します。デフォルト値は +false+ です。
+|+device_family+ | サポートするデバイスを指定。+iphone+ と +ipad+ 、+[:iphone, :ipad]+ (ユニバーサルアプリ) を指定できます。デフォルトの値は +iphone+ です。
+|+interface_orientations+ | サポートするデバイスのインタフェースの向きを指定します。値は +Array+ で、次のシンボルを 1 つ以上含める必要があります。+:portrait+ 、 +:landscape_left+ 、 +:landscape_right+ と +:portrait_upside_down+ のシンボルが利用できます。デフォルトの値は +[:portrait, :landscape_left, :landscape_right]+ です。
+|+xcode_dir+ | Xcode がインストールされているディレクトリを指定します (+String+)。デフォルト値は '/usr/bin/xcode-select -printPath' が返す値によって決まり、もし正しい値でなければ  '/Applications/Xcode.app/Contents/Developer' の値が使われます。この設定値を変更する場合には、他の設定を変更する前に行う必要があります。
+|+sdk_version+ | 使用する SDK のバージョン番号 (+String+)。デフォルト値は +xcode_dir+ 内の最新 SDK のバージョン番号です (例 : +"5.0"+)。
+|+deployment_target+ | ターゲットとする SDK のバージョン番号 (+String+)。デフォルト値は +sdk_version+ の値です。古いバージョンの iOS をターゲットするために値を下げることができます (例 : +"4.3"+)。
+|+codesign_certificate+ | CodeSign に使用する証明書の名前を指定します (+String+)。デフォルト値は keychain で最初に見つかる iPhone Developer 証明書です (例 : +"iPhone Developer: Darth Vader (A3LKZY369Q)"+)。
+|+provisioning_profile+ | deployment に使用するプロビジョニングプロファイルのパスを指定します (+String+)。デフォルト値は '~/Library/MobileDevice/Provisioning' で最初に見つかる '.mobileprovision' ファイルです。
+|+seed_id+ | アプリケーションのプロビジョニング識別子 (+String+)。iOSプロビジョニングポータル (iOS Provisioning Portal) によって生成された 10 文字の (App Store内で) ユニークな識別子です。デフォルト値は +provisioning_profile+ で最初に見つかるアプリケーション識別子です。
 |====
 
-Custom values for the configuration settings can be added by tweaking the +Motion::App.setup+ block in the +Rakefile+ file.
+Configuration の各項目でカスタマイズする値は、+Rakefile+ の +Motion::App.setup+ ブロックに追加します。
 
-As an example, let's take the configuration block of a fictional video player application for the iPad. The device family setting has to change from its default value, iPhone, to iPad. Also, the application makes use of an additional framework, AVFoundation, for audio-video functionality.
+例として、iPad 用の架空のビデオプレーヤーの設定を取り上げましょう。サポートするデバイスは iPhone から iPad に変更します。オーディオ機能のために、AVFoundation フレームワークをアプリケーションに追加します。
 
 ----
 Motion::Project::App.setup do |app|
@@ -85,9 +84,9 @@ end
 Files Dependencies
 ~~~~~~~~~~~~~~~~~~
 
-By default, RubyMotion will compile files in the regular sorting order of the filesystem. When a RubyMotion application starts, the main scope of each file will then be executed in that specific order.
+デフォルトでは、RubyMotion はファイルシステムによって決定されるソート順でファイルをコンパイルします。RubyMotion アプリケーションが起動したあとで、各ファイルのメインスコープは特定の順序で実行されます。
 
-Sometimes, you will want to customize the order, if for instance one file makes use of a constant defined in another.
+たとえば、あるファイルで使用する定数が他のファイルで定義しているという依存関係がある場合に、実行順序のカスタマイズが必要となるでしょう。
 
 ----
 $ cat app/foo.rb
@@ -98,9 +97,9 @@ class Bar < Foo
 end
 ----
 
-In the example above, using the default order, 'bar.rb' will be compiled before 'foo.rb' resulting in a constant lookup error, because the +Foo+ constant has not been defined yet when we execute the code in 'bar.rb'.
+上記の例では、デフォルトの順序を用いると、'foo.rb' の前に 'bar.rb' がコンパイルされ定数未定義エラーになります。これは 'bar.rb' のコードを実行するときに +Foo+ がまだ定義されていないからです。
 
-To fix that problem, the +files_dependencies+ method can be used in the 'Rakefile'. This method accepts a +Hash+ which should be a set of files dependencies.
+この問題に対処するためには、'Rakefile' で +files_dependencies+ メソッドを使用します。このメソッドは、ファイルの依存関係を設定した +Hash+ を受け付けます。
 
 ----
 Motion::Project::App.setup do |app|
@@ -109,33 +108,33 @@ Motion::Project::App.setup do |app|
 end
 ----
 
-After this change, the build system will compile 'foo.rb' before 'bar.rb'.
+この変更の後は、ビルドシステムは 'bar.rb' の前に 'foo.rb' をコンパイルします。
 
 Using 3rd-Party Libraries
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The iOS SDK has a significant amount of functionality built-in that you can use in your RubyMotion project. However, sometimes you will have to use a 3rd-party library that provides a feature missing from iOS.
+iOS SDK には非常に多くの機能が組み込まれていて、それらを RubyMotion から使用することができます。しかし、時には iOS に不足している機能を提供するサードパーティライブラリを使用しなければならないかもしれません。
 
-To vendor a 3rd-party library in a RubyMotion project, the source code must be available somewhere on the filesystem. It is recommended to keep the 3rd-party libraries required by the project in the same place, for instance under a 'vendor' directory.
+RubyMotion でサードパーティライブラリを利用するには、ソースコードがファイルシステム上の存在し利用可能でなければなりません。サードパーティライブラリは、プロジェクトのディレクトリ内 (たとえば、'vendor' ディレクトリの配下) に置くことをおすすめします。
 
-The +vendor_project+ method can be called from the 'Rakefile'. Its first argument must be the path to the 3rd-party library, for example +"vendor/OAuth2Client"+. Its second argument must be a symbol representing the project type, like +:xcode+. Other arguments can be provided as a list of key/value objects.
+'Rakefile' で +vendor_project+ メソッドを使用しサードパーティライブラリを設定します。第一引数にはサードパーティライブラリへのパスを必ず指定します (例 : +"vendor/OAuth2Client"+)。第二引数にはサードパーティライブラリのプロジェクトの種類を示す symbol を必ず指定します (例 : +:xcode+)。そのほかの引数は key/value のリストとして指定できます。
 
-Here is a table summarizing project types and key/value objects.
+以下は、プロジェクトの種類と key/value をまとめた表です。
 
 [cols=".^,.^,.^",options="header,autowidth"]
 |====
 | Project Type | Key | Discussion
-.6+|+:xcode+ | +:xcodeproj+ | Name of the Xcode project file to use. Optional if there is one '.xcodeproj' file in the directory.
-| +:target+ | Name of the target to build. If not provided, the default target will be used. Cannot be defined at the same time as +:scheme+.
-| +:scheme+ | Name of the scheme to build. If not provided, the default scheme will be used. Cannot be defined at the same time as +:target+.
-| +:configuration+ | Name of the configuration to build. If not provided, +"Release"+ will be used.
-| +:headers_dir+ | Path to the directory that contains public headers files, declaring APIs that will be used by the RubyMotion project. The path should be relative to the path provided to +vendor_project+, for example +"Sources/Headers"+. This key is optional.
-| +:products+ | An +Array+ containing the names of products to use in the RubyMotion project, for example +["libfoo.a"]+. This key can be used when the project builds more than one product and you want to filter what will be used by the app. If not provided, all +.a+ libraries built will be used.
-.2+| +:static+ | +:products+ | An +Array+ containing the names of static libraries to use. The default value is the list of all '.a' files in the vendor project directory.
-| +:headers_dir+ | Path to the directory that contains public headers files, declaring APIs that will be used by the RubyMotion project. The path should be relative to the path provided to +vendor_project+, for example +"include"+. The default value is the vendor project directory.
+.6+|+:xcode+ | +:xcodeproj+ | 使用する Xcode プロジェクトファイル名を指定します。ディレクトリに '.xcodeproj' が 1 つだけしかない場合には不要です。
+| +:target+ | ビルドするターゲット名を指定します。省略すると、デフォルトのターゲットが使用されます。+:scheme+ と一緒に使用することはできません。
+| +:scheme+ | ビルドするスキーム名を指定します。省略すると、デフォルトのスキームが使用されます。+:target+ と一緒に使用することはできません。
+| +:configuration+ | ビルドするコンフィギュレーション名を指定します。省略すると +"Release"+ が使用されます。
+| +:headers_dir+ | RubyMotion プロジェクトで使用される API が宣言されている、パブリックなヘッダファイルが置かれているディレクトリへのパスを指定します。+vendor_project+ の第一引数で与えられたパスとの相対パスを指定します (例 : +"Sources/Headers"+)。この設定は省略可能です。
+| +:products+ | RubyMotion プロジェクトで使用するライブラリ名を含んだ +Array+ を指定します (例 : +["libfoo.a"]+)。プロジェクトが複数のライブラリをビルドし、アプリで使用するライブラリをフィルタしたいというケースで、このキーを用います。
+.2+| +:static+ | +:products+ | 使用する static ライブラリ名を含んだ +Array+ を指定します。デフォルト値は vendor プロジェクトディレクトリのすべての '.a' をリストにした値です。
+| +:headers_dir+ | RubyMotion プロジェクトで使用される API が宣言されている、パブリックなヘッダファイルが置かれているディレクトリへのパスを指定します。+vendor_project+ の第一引数で与えられたパスとの相対パスを指定します (例 : +"include"+)。デフォルト値は +vendor_project+  の第一引数に指定した値です。
 |====
 
-Continuing our example from above, assuming our video player project wants to make use of the OAuth2Client 3rd-library library, a 'vendor' directory would be created and the OAuth2Client source code would be added there.
+さきほどの例を引き続き、サードパーティライブラリの OAuth2Client を使用するビデオプレーヤープロジェクトを仮定しましょう。'vendor' ディレクトリを作成し、OAuth2Client のソースコードをそこへ追加します。
 
 ----
 $ cd AwesomeVideoPlayer
@@ -143,7 +142,7 @@ $ ls vendor
 OAuth2Client
 ----
 
-Then, the 'Rakefile' can be modified as such. 
+そして 'Rakefile' を変更します。
 
 ----
 Motion::Project::App.setup do |app|
@@ -158,15 +157,15 @@ end
 Entitlements
 ~~~~~~~~~~~~
 
-Entitlements confer specific capabilities or security permissions to an application. You may be required by Apple to request an entitlement when trying to access a specific feature of the system.
+エンタイトルメント (Entitlements)  はアプリケーションに特定の機能やセキュリティ許可を与えます。システムの特定の機能にアクセスしようとすると、Apple によってエンタイトルメントのリクエストが必要とされるでしょう。
 
-An application running on an iOS device that does not have the proper entitlement for a functionality will fail at runtime when trying to use such functionality. It will also not be accepted into the App Store.
+iOS デバイス上で動作するアプリケーションがそのような機能を使用するとき、エンタイトルメントがなければ動作時にエラーとなります。App Store へ登録することもできないでしょう。
 
-Entitlements are used during the code-signing part of the build process.
+エンタイトルメントはビルドの CodeSign 処理中に使用されます。
 
-The +entitlements+ method of the 'Rakefile' configuration object returns an empty +Hash+ object by default, that you can modify to set appropriate keys and values.
+'Rakefile' の +entitlements+ メソッドの設定値は、デフォルトで空の +Hash+ オブジェクトを返します。適切な keys/values により設定を変更できます。
 
-For instance, our video player might require access to the keychain to store the user credentials. According to the documentation, the +keychain-access-groups+ entitlement must be requested, passing a combination of the application provisioning identifier and the application identifier, respectively exposed as +seed_id+ and +identifier+ in RubyMotion.
+たとえば、ビデオプレーヤーがユーザの証明書を保存するために keychain へのアクセスを必要とします。ドキュメントによると、+keychain-access-groups+  エンタイトルメントのリクエストが必須で、アプリケーションのプロビジョニング識別子とアプリケーション識別子の組み合わせとなります。RubyMotion では +seed_id+ と +identifier+ です。
 
 ----
 Motion::Project::App.setup do |app|
@@ -180,15 +179,16 @@ end
 Advanced Info.plist Settings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-An iOS app has its configuration defined in the 'Info.plist' file, which is located inside the application bundle. This file contains a set of keys and values. It is fully documented in the http://developer.apple.com/library/ios/#documentation/General/Reference/InfoPlistKeyReference/Introduction/Introduction.html[Info.plist reference] guide.
+iOS アプリはアプリケーション内にバンドルされた、'Info.plist'  で設定を記述します。このファイルには key と value の組み合わせを記述します。それらについては  http://developer.apple.com/library/ios/#documentation/General/Reference/InfoPlistKeyReference/Introduction/Introduction.html[Info.plist reference] ガイドで詳細に説明されています。
 
-In a RubyMotion project, the 'Info.plist' file is derived from the configuration object exposed in the 'Rakefile' file. For example, the +CFBundleName+ variable in 'Info.plist' is derived from the +name+ variable in the 'Rakefile'. Most of the time, the configuration object will let you control the necessary settings of his project.
+RubyMotion プロジェクトでは、'Info.plist' は 'Rakefile'  で設定されたオブジェクトを元にします。たとえば、'Info.plist' の +CFBundleName+ は 'Rakefile' の +name+ を元にします。Configuration の各オブジェクトは、ほとんどプロジェクトで必要となる設定をします。
 
-However, it might happen that you will want to change an advanced setting of a project. The 'Rakefile' interface does not cover all the possible settings, but it exposes the internal 'Info.plist' data structure that one can modify if needed.
+しかし、より高度なプロジェクトの設定が必要なケースがあるかもしれません。
+'Rakefile' インタフェースはすべての可能な設定をカバーしていません。しかし、内部の 'Info.plist' データ構造は、必要に応じて変更できます。
 
-As an example, our video player might need to register a custom URI scheme, so that it can open custom URLs from the web browser, for instance, +x-videoplayer://play+. The 'Rakefile' configuration object does not provide support for this.
+例として、ビデオプレーヤーをとりあげます。このアプリは、ブラウザからカスタムな URI をオープンできるようにするために、URI スキームの登録を必要とします (例 : +x-videoplayer://play+)。'Rakefile' の Configuration オブジェクトは、これをサポートしていません。
 
-The reference suggests that the +CFBundleURLTypes+ key should be used. The key can be manually set by using the +info_plist+ method, which returns a mutable +Hash+ object.
+Reference ガイドは +CFBundleURLTypes+ をキーとして使用しなければならないと説明しています。+info_plist+ メソッドを用いてキーを設定できます。このメソッドは変更可能な +Hash+ オブジェクトを返します。
 
 ----
 Motion::Project::App.setup do |app|
@@ -203,42 +203,42 @@ end
 Build
 -----
 
-The +rake build+ task builds the project into the temporary 'build' directory. Two different versions of the project will be built, one to run in the iOS simulator (on the Mac itself) and one to run on the iOS device.
++rake build+ タスクは、テンポラリーな 'build' ディレクトリにプロジェクトをビルドします。ビルドには 2 種類あり、一つは (Mac 上で動作する) iOS シミュレータ向け、もう一つは iOS デバイス向けのビルドです。
 
-The following steps are performed during the build process:
+以下は、ビルド処理中で行われる行程です。
 
-. It compiles each Ruby source code file into optimized machine code, translating the Ruby syntax tree into an intermediate representation language (using http://llvm.org[LLVM]), then assembly. The compiler will generate code for either the Intel 32-bit (+i386+) or ARM (+armv6+, +armv7+) instruction sets and ABIs depending on the target.
-. It links the machine code with the RubyMotion runtime statically to form an executable. The linker also includes metadata for the C APIs that the project uses, as well as 3rd-party libraries vendored from the configuration.
-. It creates an '.app' bundle and copies the executable there. The 'Info.plist' file is generated based on the project configuration. Each resource file in the 'resources' directory is copied in the bundle. Old resource files, that have since been deleted from the project, will not be present in the application bundle.
-. It codesigns the bundle based on the certificate, the provisioning profile and the entitlements specified in the project configuration.
+. 各 Ruby のソースコードファイルは、Ruby の構文木から http://llvm.org[LLVM] を用いて中間言語に、そしてアセンブリに変換し、最適化された機械語へコンパイルされます。コンパイラは Intel 32-bit (+i386+) または ARM (+armv6+, +armv7+) の命令語とターゲットに依存した ABI のコードを生成します。
+. 実行可能なファイルを作成するために機械語と RubyMotion ランタイムが静的にリンクされます。リンカーはプロジェクトで使用する Configuration で指定されたサードパーティライブラリ や C API のメタデータも含めます。
+. '.app' 形式のバンドルを作成し、そこへ実行ファイルをコピーします。プロジェクトの Configuration をベースとした 'Info.plist' を作成します。'resources' ディレクトリの各リソースファイルをバンドル内にコピーします。プロジェクトから削除された古いリソースファイルは、アプリケーションのバンドルから取り除かれます。
+. プロジェクトの Configuration で指定されたエンタイトルメント、プロビジョニングプロファイルと証明書に基づきバンドルを CodeSign します。
 
-Normally the user does not need to explicitly build the project, as the 'build' task is a dependency of the other tasks.
+'build' タスクは他のタスクの依存関係により実行されるので、通常は明示的に 'build' タスクを実行する必要はありません。
 
 Xcode Resource Files
 ~~~~~~~~~~~~~~~~~~~~
 
-The build system will detect the following Xcode resource files in the 'resources' directory and properly compile them and copy the result into the generated '.app' bundle.
+ビルドシステムは、次の 'resources' ディレクトリ内の Xcode リソースファイルを検出し、適切にコンパイルし生成された '.app' バンドル内にコピーします。
 
 [options="header,autowidth"]
 |=========================
-| Source Extension | Compiled Extension | Description 
+| Source Extension | Compiled Extension | Description
 | '.xib' | '.nib' | Interface Builder files.
 | '.storyboard' |  '.storyboardc' | Storyboard files.
 | '.xcdatamodeld' | '.momd' | CoreData model files.
 |=========================
 
-The compiled files will be removed by 'rake clean'.
+コンパイルされたファイルは 'rake clean' によって削除できます。
 
 Parallel Compilation
 ~~~~~~~~~~~~~~~~~~~~
 
-The compilation of Ruby source files into machine code takes a non-negligeable amount of time.
+Ruby ソースファイルの機械語へのコンパイルは、多くの時間がかかります。
 
-If the machine used to build the project runs a multicore processor, which is very likely these days, the build system will try to spread the compilation tasks in parallel. This can be very useful when building a project that contains a significant number of files.
+プロジェクトをビルドするのに使用する Mac がマルチコアプロセッサであれば、コンパイル処理を並列分散することができます。非常に多くのファイルを含んだプロジェクトをビルドする場合に、これは非常に役に立つでしょう。
 
-The build system uses the value of the +machdep.cpu.thread_count+ sysctl kernel variable to determine  know how many compilation tasks can be executed in parallel. For example, a MacBook Pro running an Intel Core i7 processor has 4 available cores, each one being able to run 2 concurrent threads, and the build system will therefore compile 8 files at a time.
+ビルドシステムは、コンパイル処理をどれだけ並列して行えるか決定するために sysctl の +machdep.cpu.thread_count+  の値を使用します。たとえば、Intel Core i7 プロセッサで動作する MacBook Pro は 4 つのコアを持っています。それぞれのコアは 2 つのスレッドを平行実行できるので、ビルドシステムは最大 8 つのファイルを同時にコンパイルします。
 
-It is possible to override the number of concurrent jobs the build system should use by setting the +jobs+ environment variable. It can be set to a lower number if for instance the machine is performing another CPU intensive task that should not be interrupted by the build system.
+環境変数 +jobs+ の値を設定することで、ビルドシステムが並列処理する数を変更することができます。たとえば、ビルドシステムによって処理が中断されては困る処理を実行している場合には、より低い値を設定します。
 
 ----
 $ rake jobs=1        # Force compilation tasks to be sequential.
@@ -247,7 +247,7 @@ $ rake jobs=1        # Force compilation tasks to be sequential.
 Cleaning
 ~~~~~~~~
 
-The +rake clean+ task empties the 'build' directory and cleans the build directories of the vendored projects.
++rake clean+ タスクは 'build' ディレクトリを空にし、ベンダープロジェクトの build ディレクトリをクリーンします。
 
 ----
 $ rake clean
@@ -256,9 +256,9 @@ $ rake clean
 Simulation
 ----------
 
-The +rake simulator+ task builds the project for the iOS simulator, and runs the application in the simulator.
++rake simulator+ タスクは iOS シミュレータ向けにプロジェクトをビルドし、シミュレータ上でアプリを実行します。
 
-The default +rake+ task is a shortcut to +rake simulator+.
++rake+ のデフォルトタスクは +rake simulator+ のショートカットとなっています。
 
 ----
 $ rake simulator
@@ -268,24 +268,23 @@ $ rake
 Interactive Console
 ~~~~~~~~~~~~~~~~~~~
 
-An interactive shell, similar to Ruby's own +irb+ command, is available when you run your app through the iOS simulator.
+iOS シミュレータ上でアプリを実行するときに、Ruby の +irb+  と類似した、interactive shell が利用できます。
 
-You can evaluate any expression in the shell. The shell does not block the app from running, but expressions typed into it will be sent to the app which will execute them in the main thread.
+interactive shell で式を評価できます。interactive shell は実行中のアプリをブロックしません。入力された式は、アプリを実行するメインスレッドに送られます。
+NOTE: REPL (read-eval-print-loop) のサポートはアプリの必要に応じてロードされます。デフォルトでは、シミュレータ向けにビルドされたアプリは、iOS デバイス向けにビルドされたアプリよりもコードが含まれません。
 
-NOTE: The REPL (read-eval-print-loop) support is loaded on demand in the app. By default, an app built for the simulator does not contain any more code than an app built for an iOS device.
++help+ を実行すると、ビルトインの式について情報を得ることができます。
 
-You can type +help+ to get more information about the built-in expressions.
-
-The interactive shell also features a way to select views in the simulator. Hold the +command+ key while moving your mouse over the simulator window and you should see red borders around views you are selecting as well as the object in the shell. Once you click, the shell will open a new session whose context (the +self+ object) is the view you selected.
+interactive shell にはシミュレータ上で、view を選択する機能もあります。+command+ キーを押しながらマウスをシミュレータのウィンドウ上を移動します。view の周りには赤い枠が表示され、interactive shell 上に選択されているオブジェクトが表示されます。クリックすると、interactive shell は選択した view のコンテキスト (+self+ オブジェクト) で新しい session を開きます。
 
 Universal Applications
 ~~~~~~~~~~~~~~~~~~~~~~
 
-A universal application targets both the iPhone and iPad device families (see the +device_family+ project configuration setting for more details).
+ユニバーサルアプリケーションは iPhone と iPad デバイスの両方をターゲットとします (詳細はプロジェクトの Configuration の +device_family+ 設定を確認してください)。
 
-In some cases it can be convenient to specify which device family the simulator should use. By default, the simulator will use the first device family provided in the project configuration setting.
+このようなケースでは、シミュレータで使用するデバイスの種類を指定できると便利です。シミュレータにはプロジェクトの Configuration 設定で最初に指定されたデバイスを使用します。
 
-The +device_family+ environment variable can be set to either +iphone+ or +ipad+ to change this default. For example, forcing a universal application to run on the iPad.
+デフォルトで起動するシミュレータの種類を、環境変数 +device_family+ で +iphone+ か +ipad+ を指定し変更できます。たとえば、ユニバーサルアプリを iPad シミュレータで起動するには以下のように実行します。
 
 ----
 $ rake simulator device_family=ipad
@@ -294,7 +293,7 @@ $ rake simulator device_family=ipad
 Retina Mode
 ~~~~~~~~~~~
 
-It is possible to start the simulator in Retina mode by setting the +retina+ environment variable to +true+.
+環境変数 +retina+ を +true+ と設定することにより、シミュレータを Retina モードで起動することができます。
 
 ----
 $ rake simulator retina=true
@@ -303,12 +302,11 @@ $ rake simulator retina=true
 Cleaning the Sandbox
 ~~~~~~~~~~~~~~~~~~~~
 
-Each application lives in its own directory inside the iOS simulator sandbox. This directory contains the application bundle, but also the 'Documents' and 'Library' folders, which store its filesystem state. When running an application through the simulator, the sandbox will be created if it doesn't exist, otherwise, the application will be copied into the existing sandbox.
+各アプリケーションは、iOS シミュレータのサンドボックス内のディレクトリにあります。このディレクトリはアプリケーションバンドルや、'Documents' 、'Library' フォルダを含み、ファイルシステムの状態を保持します。シミュレータ上でアプリケーションを実行する際に、サンドボックスがなければ作成され、あるいは既存のサンドボックスにアプリケーションがコピーされます。
 
-Sometimes, you may want to clean the application sandbox before running the simulator, in order to start from a fresh state. For instance, if resource files are removed from the project, or if the application has state data that has to be cleaned up.
+シミュレータを実行する前に、アプリケーションのサンドボックスをきれいにしたいと望むかもれません。たとえば、プロジェクトからリソースファイルが削除された場合や、アプリケーションの状態のデータをクリーンアップする必要があるときなどがあげられます。
 
-To perform that, the +clean+ environment variable can be set to any value, which will trigger the removal of the application sandbox before running the simulator.
-
+サンドボックスのクリーンアップは、環境変数 +clean+ に何か値を設定すると、シミュレータを実行する前に、アプリケーションのサンドボックスを掃除します。
 ----
 $ rake simulator clean=1
 ----
@@ -316,18 +314,18 @@ $ rake simulator clean=1
 Testing
 -------
 
-RubyMotion has built-in http://en.wikipedia.org/wiki/Behavior_Driven_Development[Behavior-Driven Development] functionality that you can use to cover the specifications of an application. RubyMotion uses a flavor of the http://github.com/alloy/MacBacon[Bacon] framework slightly modified to integrate better with the iOS system.
- 
-Specification files are written in the 'spec' directory.
+RubyMotion は、アプリケーションの spec を取り扱う、ビルトインの http://en.wikipedia.org/wiki/Behavior_Driven_Development[Behavior-Driven Development] 機能を持っています。RubyMotion は iOS システムと統合するために若干修正した http://github.com/alloy/MacBacon[Bacon] フレームワークを使用します。
 
-The +rake spec+ task will build a special version of the project that will execute all specification files right after the application launches. A summary will then be printed on the standard output terminal, and the application will exit.
+spec ファイルは、'spec' ディレクトリに置かれます。
 
-Note: +rake spec+ currently only works with the simulator.
++rake spec+ タスクはプロジェクトを spec 用に特別なバージョンでビルドし、アプリケーションの起動後に spec ファイルが実行されます。そして、Terminal の標準出力に spec の概要が出力され、アプリケーションが終了します。
 
-Specification files have full access to the iOS SDK as well as the application classes. Here is a spec that makes sure the application has one active window.
+Note: +rake spec+ は、現在シミュレータ上でのみ動作します。
+
+spec ファイルは、アプリケーションのクラスと同様に iOS SDK にフルアクセスできます。例として、以下のテストはアプリケーションが 1 つのアクティブウィンドウを持つかというものです。
 
 ----
-$ cat spec/main_spec.rb 
+$ cat spec/main_spec.rb
 describe "My Awesome App" do
   it "has a window" do
     app = UIApplication.sharedApplication
@@ -336,7 +334,7 @@ describe "My Awesome App" do
 end
 ----
 
-Assuming the application is properly implemented to follow that specification, +rake spec+ will gracefully exit with a status error of 0.
+アプリケーションが spec に従って正しく実装された場合には、+rake spec+ はエラーの数が 0 という状態で終了します。
 
 ----
 $ rake spec
@@ -350,16 +348,16 @@ My Awesome App
 Archiving
 ---------
 
-RubyMotion projects can be archived in order to be distributed and submitted to the App Store.
+RubyMotion プロジェクトは、App Store へアプリを提出し配信するためにアーカイブすることができます。
 
 Development vs Release
 ~~~~~~~~~~~~~~~~~~~~~~
 
-A RubyMotion project can be built for development or release. A project is built for development when you run it in the simulator, or push it to your development device. A project is built for release when you're generating an archive for an App Store submission.
+RubyMotion プロジェクトは、開発向けあるいはリリース向けにビルドできます。シミュレータ上での実行や開発用の iOS デバイスで実行するために、開発向けにビルドされます。App Store へ提出するためにアーカイブを作成する際にはリリース向けにプロジェクトはビルドされます。
 
-Currently, the only difference between a RubyMotion app built for release and one built for development is that all symbols are stripped from the main executable. This process removes about 1MB of data from the app bundle, but at the same time makes debugging more difficult, which is why it's not applied in development. 
+現在、RubyMotion アプリの開発向けとリリース向けのビルドは、実行可能なファイルからすべてのシンボルが取り除かれるかとういう違いだけです。この処理によって、アプリケーションバンドルから、およそ 1 MB のデータを取り除きます。しかしこれはデバッグを困難に、開発には適しません。
 
-Sometimes, you want to apply different settings in the 'Rakefile' if the project builds for release. This can be done by using the +development+ and +release+ methods on the configuration object. These methods will yield the given block for the specified build mode.
+プロジェクトをリリース向けにビルドする場合に、'Rakefile' で異なる設定を行うこともできます。
 
 ----
 Motion::Project::App.setup do |app|
@@ -374,22 +372,23 @@ end
 Install on Device
 ~~~~~~~~~~~~~~~~~
 
-The +rake device+ task builds and uploads a development archive of the application to an iOS device.
++rake device+ は iOS デバイス向けに開発用のアーカイブをビルドしアップロードします。
 
-There must be one iOS device connected via USB to the Mac. The deployment task will attempt to upload the application to the first discovered iOS device on the USB channel.
+1 つの iOS デバイスが Mac と USB 接続していなければいけません。
+この処理では、USB 接続されている最初に見つかった iOS デバイスにアプリケーションがアップロードします。
 
-The process will fail in the following cases:
+以下のようなケースで処理が失敗するでしょう:
 
-* No iOS device was found on USB.
-* The project builds on a version of iOS greater than the version of iOS running on the device.
-* The project doesn't use the appropriate certificate and provisioning profile linked to the device.
-* There is a USB connection issue when talking to the device.
+* iOS デバイスが USB 接続されていない。
+* プロジェクトが、デバイス上で実行している iOS のバージョンよりも新しいバージョンでビルドされている。
+* プロジェクトの証明書やデバイスとリンクされているプロビジョニングプロファイルに不適切なものを使用している。
+* デバイスと通信する際に、USB の接続に問題がある。to the device.
 
-Otherwise, the process returns successfully and the application is then available on the device springboard.
+処理が成功すると、アプリケーションはデバイスの SpringBoard 上で利用できます。
 
 Distribution
 ~~~~~~~~~~~~
 
-The +rake archive+ task can be used to generate '.ipa' archives for both development and release modes. An '.ipa' archive is suitable for ad-hoc distribution and can also be used for a submission to the App Store.
++rake archive+  タスクは開発向け・リリース向けの両方で '.ipa'  のアーカイブを生成するのに利用できます。'.ipa' アーカイブは ad-hoc な配信や App Store への提出に適しています。
 
-The task requires a valid certificate and provisioning profile in order to codesign the app bundle.
+このタスクは、アプリケーションバンドルを CodeSign するために適切な証明書とプロビジョニングプロファイルが必要となります。
