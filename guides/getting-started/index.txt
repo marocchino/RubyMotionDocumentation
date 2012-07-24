@@ -8,45 +8,45 @@ Thank you for purchasing RubyMotion. This guide will help you get started with t
 Overview
 --------
 
-http://www.rubymotion.com[RubyMotion] is a toolchain that permits the development of iOS applications using the Ruby programming language.
+http://www.rubymotion.com[RubyMotion] はプログラミング言語 Ruby を用いて iOS アプリケーションを開発するためのツールチェインです。
 
-http://www.apple.com/ios[iOS] is Apple's mobile operating system, powering a variety of devices such as the iPhone, iPod touch and iPad. Developers can write applications for iOS and submit them to the App Store, Apple's application distribution system.
+http://www.apple.com/ios[iOS] は Apple のモバイルオペレーティングシステムで、iPhone や iPod、iPad などさまざまなデバイスを制御しています。開発者は iOS 向けのアプリケーションを作成し、そして Apple のアプリケーション配信システムである App Store にアプリケーションを登録できます。
 
-Conceptually, RubyMotion is a combination of two major components:
+RubyMotion は、主に二つの構成要素から成ります。
 
-* *Runtime*: A brand-new implementation of the Ruby language, tightly integrated with the native iOS runtime and optimized for embedded iOS device constraints.
-* *Project Management*: A command-line interface to create, manage, and interactively develop RubyMotion projects. It also includes a static compiler that compiles Ruby into optimized machine code and an interactive console where you can evaluate expressions on the fly and change the way your app behaves in real-time.
+* *Runtime*: 新規の Ruby 言語の実装で、ネイティブの iOS と密接に統合され iOS デバイスに最適化されています。
+* *Project Management*: RubyMotion のプロジェクトを作成・管理、また対話的に開発するためのコマンドラインインタフェースです。他にも、Ruby コードを最適化された機械語にコンパイルする静的なコンパイラと、その場でリアルタイムに式を評価しアプリケーションの動作を変更できるインタラクティブなコンソールがあります。
 
-RubyMotion installs itself into '/Library/RubyMotion'. A symbolic link to the command-line interface is created as '/usr/bin/motion'.
+RubyMotion は '/Library/RubyMotion' にインストールされ、コマンドラインインタフェースのシンボリックリンクが '/usr/bin/motion' に作成されます。
 
 Prerequisites
 -------------
 
-RubyMotion requires a Mac running OSX 10.6 or higher. OSX 10.7 Lion however is highly recommended.
+RubyMotion の利用には、OSX 10.6 以上がインストールされている Mac が必要です。OSX 10.7 Lion 以上を強くおすすめします。
 
-You will need to install the iOS SDK on your machine. These days the iOS SDK comes with Xcode. Xcode can be downloaded and installed for free using the App Store application.
+あらかじめ iOS SDK を Mac にインストールする必要があります。iOS SDK は Xcode に付属おり、Xcode は App Store アプリケーションを使用して、無料でダウンロード・インストールできます。
 
-NOTE: Xcode is Apple's IDE. You do not need to use it when programming with RubyMotion, you can keep using your favorite text editor.
+NOTE: Xcode は Apple 製の IDE です。RubyMotion でプログラミングするときには Xcode を使う必要はなく、お気に入りのエディタを使い続けることができます。
 
-Open the 'App Store' application then search for "Xcode" in the search field.
+'App Store' アプリケーションを起動し、検索欄で "Xcode" と検索します。
 
-image:/developer-center/guides/getting-started/images/xcode-search.png["Searching for Xcode in the App Store"]
+image:http://www.rubymotion.com/developer-center/guides/getting-started/images/xcode-search.png["Searching for Xcode in the App Store"]
 
-Find 'Xcode' from the result, then click on it.
+検索結果に表示される 'Xcode' をクリックします。
 
-image:/developer-center/guides/getting-started/images/xcode-search2.png["Searching for Xcode in the App Store"]
+image:http://www.rubymotion.com/developer-center/guides/getting-started/images/xcode-search2.png["Searching for Xcode in the App Store"]
 
-That should open a new page where you can download Xcode. 
+Xcode の詳細について書かれたページが表示され、そのページで Xcode をダウンロードできます。
 
-Once Xcode is installed, you will need to install the Command Line Tools package, required by RubyMotion.
+Xcode をインストールしたあと、RubyMotion で必要となる Command Line Tools パッケージをインストールします。
 
-Open the 'Xcode' application from your 'Applications' folder, then go to the 'Preferences' window and click on the 'Downloads' tab. You should see the 'Command Line Tools' package in this list, make sure to hit the 'Install' button.
+'アプリケーション' フォルダにある 'Xcode' を起動します。Xcode の 'Preferences' を表示し、'Downloads' タブをクリックします。リストに 'Command Line Tools' パッケージがありますので、'Install' ボタンをクリックしインストールします。
 
-image:/developer-center/guides/getting-started/images/xcode-prefs-download.png["Installing the Command Line Tools package"]
+image:http://www.rubymotion.com/developer-center/guides/getting-started/images/xcode-prefs-download.png["Installing the Command Line Tools package"]
 
-Okay, you should be all set now! You can close Xcode.
+インストールが終われば準備は完了で、Xcode を閉じることができます。
 
-If you happened to have an older version of Xcode installed on your machine before you installed a newer Xcode from the App Store, you may want to type the following command in order to properly set up the default Xcode path.
+もし、新しいバージョンの Xcode を App Store からインストールする前に古いバージョンの Xcode を使用されていた場合には、Xcode のパスを設定するために以下のように Terminal でコマンドを実行します。
 
 ----
 $ sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
@@ -55,68 +55,68 @@ $ sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
 Software Updates
 ----------------
 
-Software updates can be applied via the command-line.
+コマンドラインから Software アップデートを行うことができます。
 
-The following command will grab the latest version of RubyMotion from the network and install it. You must be connected to the Internet to successfully update RubyMotion.
+以下のコマンドで、最新の RubyMotion をネットワークから取得しインストールします。RubyMotion のアップデートを行う際には、インターネットに接続した環境が必要になります。
 
 ----
 $ sudo motion update
 ----
 
-You can run the following command to check the version of RubyMotion installed on your computer.
+インストールされている RubyMotion のバージョンを確認する場合には、以下のようにコマンドを実行します。
 
 ----
 $ motion -v
 1.0
 ----
 
-Once a day, the RubyMotion build system pings the software update server in order to see if a new version of RubyMotion is available to install. If a new version is available RubyMotion prints a message to your terminal suggesting that you to upgrade.
+一日に一度、RubyMotion のビルドシステムは新しい RubyMotion がインストールできないか Software アップデートサーバに問い合わせします。新しい RubyMotion があれば Terminal にメッセージを表示しアップデートを通知します。
 
 Support
 -------
 
-If you are experiencing an issue, would like to request a feature, or simply have a question, you can file a support ticket from the command-line too.
+問題に直面している場合や、機能のリクエストや質問など、コマンドラインから ticket を提出できます。
 
 ----
 $ motion support
 ----
 
-This will open a new window in your browser where you can fill up a support ticket. Your license key and some useful information regarding your environment will be added automatically.
+ブラウザの新しいウィンドが開かれ、サポート ticket を記入できます。ライセンスキーや開発環境など、いくつかの情報が自動的に記入された状態となっています。
 
 Hello World
 -----------
 
-We are now ready to write our first RubyMotion program: Hello World.
+最初の RubyMotion プログラム "Hello World" を記述する準備が整いました。
 
-Open your terminal and go to a place where you would like this first project to be created, then type the following command.
+Terminal を起動し、プロジェクトを作成する場所へ移動します。そして、以下のようにコマンドを実行してください。
 
 ----
 $ motion create Hello
 ----
 
-This command will create a RubyMotion project in a new directory named Hello. If this directory already exists or cannot be created, the command will fail.
+このコマンドによって、RubyMotion のプロジェクトが "Hello" という新しいディレクトリに作られます。もしすでに同じディレクトリが存在するなどしディレクトリが作成できない場合には、コマンドの実行は失敗します。
 
-Let's have a look inside.
+ディレクトリの中身をのぞいてみましょう。
 
-----  
+----
 $ cd Hello
 $ ls
 Rakefile app resources spec
 ----
 
-A RubyMotion project is +Rakefile+-based. +rake+ is the de-facto Ruby build program. It is similar to +make+ and it ships with Mac OS X by default.
+RubyMotion のプロジェクトは +Rakefile+ をベースとしています。+rake+ は Ruby での標準的なビルドプログラムです。 同様のものとして、Mac OS X では標準で +make+ が付属しています。
 
-The 'app' directory contains the application code. The 'resources' directory will eventually contain the resource files of your project, such as icon, image or sound files. The 'spec' directory contains specification/test files.
+'app' ディレクトリにはアプリケーションのコードが含まれます。'resources' ディレクトリには、アイコンや画像、サウンドファイルなど、プロジェクトで使用するリソースが最終的に含まれるでしょう。'spec' ディレクトリには spec やテスト用のファイルが含まれます。
 
-Let's run the default task.
+rake のデフォルトタスクを実行してみましょう。
 
 ----
 $ rake
 ----
 
-This should build our project then start the simulator, and you should see... an empty, black window. It's actually normal, we haven't written any code yet!
+プロジェクトをビルドし、シミュレータが起動します。まだコードを何も書いていないので、真っ黒な空のウィンドウが表示されます。
 
-If you look inside the 'app' directory you will see an 'app_delegate.rb' file, which is created by default. This file implements the AppDelegate class, which is responsible for controlling your application.
+'app' ディレクトリの中にはデフォルトで作成される 'app_delegate.rb' というファイルがあります。このファイルには、アプリケーションの制御という役割をする AppDelegate が実装されています。
 
 ----
 class AppDelegate
@@ -126,7 +126,7 @@ class AppDelegate
 end
 ----
 
-Open the 'app/app_delegate.rb' file with your favorite editor. We will change the code to do something more interesting, such as triggering an alert.
+'app/app_delegate.rb' ファイルをお気に入りのエディタで開きます。そして、アラートを表示するコードに変更しましょう。
 
 ----
 class AppDelegate
@@ -139,23 +139,23 @@ class AppDelegate
 end
 ----
 
-If you run the +rake+ command again from the terminal you should be able to see the alert in the simulator.
+Terminal で再び +rake+ コマンドを実行すると、シミュレータ上にアラートが表示されます。
 
-image:/developer-center/guides/getting-started/images/hello.png["Hello World"]
+image:http://www.rubymotion.com/developer-center/guides/getting-started/images/hello.png["Hello World"]
 
-Now, let's try this outside the simulator. Make sure you have an iOS device properly configured for development connected over USB, and type the following.
+今度は、iOS デバイスで試してみましょう。開発用に設定された iOS デバイスと USB で接続した状態で、次のコマンドを実行します。
 
 ----
 $ rake device
 ----
 
-This should install the Hello app on your device. You can now pick it up and run the app, and you should be able to see the alert message.
+このコマンドにより、Hello アプリが iOS デバイスへインストールされます。アプリを実行すると、アラートメッセージが表示されることでしょう。
 
-Congratulations, you successfully created your first RubyMotion program. That wasn’t too hard, was it?
+これで、はじめての RubyMotion プログラムの作成が終わりです。どうでしょう、難しかったですか？
 
 And Now?
 --------
 
-You will find sample code in the https://github.com/HipByte/RubyMotionSamples[Sample Code Repository] on GitHub. Each of the sub-folders contains a RubyMotion project as introduced above. You can type +rake+ in each directory to build and run them and check their source code by reading the files in the 'app' directory.
+いくつかサンプルコードが GitHub の https://github.com/HipByte/RubyMotionSamples[Sample Code Repository] にあります。サブフォルダは、上記のように作成した RubyMotion プロジェクトです。 サブフォルダで +rake+ コマンドを実行しアプリを試すことや、'app' ディレクトリ内のソースコードを確認することができます。
 
-Make sure to check the link:/developer-center[Developer Center] for more resources, such as guides, articles and screencasts.
+そのほかのガイドや RubyMotion に関する記事、screencast などは http://www.rubymotion.com/developer-center[Developer Center] で確認してください。
