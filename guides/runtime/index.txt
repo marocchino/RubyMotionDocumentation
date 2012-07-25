@@ -2,57 +2,58 @@ RubyMotion Runtime Guide
 ========================
 Laurent Sansonetti <lrz@hipbyte.com>
 
-The RubyMotion runtime implements the Ruby language functionality required during the execution of an application. The object model, built-in classes, and memory management system are part of the runtime.
+RubyMotion ランタイムは、アプリケーションの実行時に必要な Ruby の言語機能を実装しています。ランタイムの一部には、オブジェクトモデル、組み込みクラスとメモリ管理システムがあります。
 
-Although similar in appearance, the RubyMotion runtime has a completely different implementation than http://www.ruby-lang.org/en/[CRuby], the mainstream implementation (which is also called MRI, or simply Ruby). We will cover the main differences in the following sections.
+外観上、RubyMotion ランタイムは http://www.ruby-lang.org/en/[CRuby] (MRI や、単に Ruby とも呼ばれます) と似ていますが完全に異なる実装があります。以下のセクションでは、CRuby との主な違いについて取り上げます。
 
-The key feature of the RubyMotion runtime is its tight integration with iOS, which makes it suitable for use on power efficient devices.
+RubyMotion ランタイムの重要な特徴として、iOS との密接な統合があります。これは、アプリケーションの効率的な動作を意味します。
 
-RubyMotion follows the Ruby 1.9 language specifications.
+RubyMotion は Ruby 1.9 の言語仕様に準拠します。
 
 Object Model
 ------------
 
-The object model of RubyMotion is based on http://en.wikipedia.org/wiki/Objective-C[Objective-C], the underlying language runtime of the iOS SDK. Objective-C is an object-oriented flavor of C that has been, like Ruby, heavily influenced by the http://en.wikipedia.org/wiki/Smalltalk[Smalltalk] language.
+RubyMotion のオブジェクトモデルは http://en.wikipedia.org/wiki/Objective-C[Objective-C] をベースとし、iOS SDK の基本的な言語ランタイムに基づいています。Objective-C は C 言語にオブジェクト指向を取り入れ、Ruby と同じく、http://en.wikipedia.org/wiki/Smalltalk[Smalltalk] から強く影響を受けています。
 
-Sharing a common ancestor, the object models of Ruby and Objective-C are conceptually similar. For instance, both languages have the notion of open classes, single inheritance and single dynamic message dispatch. 
+Smalltalk という祖先を共有することで、Ruby と Objective-C のオブジェクトモデルは概念が似ています。たとえば、両方の言語にオープンクラス、単一継承、単一の動的なメッセージ送信があります。
 
-RubyMotion implements the Ruby object model by using the http://developer.apple.com/library/ios/#documentation/Cocoa/Reference/ObjCRuntimeRef/Reference/reference.html[Objective-C runtime], the library that powers the Objective-C language and indirectly, the iOS SDK APIs.
+RubyMotion では Ruby のオブジェクトモデルを http://developer.apple.com/library/ios/#documentation/Cocoa/Reference/ObjCRuntimeRef/Reference/reference.html[Objective-C runtime] や iOS SDK の API を使用し実装しています。 Objective-C runtime は Objective-C 言語と iOS SDK API に間接的に力を与えているライブラリです。
 
-In RubyMotion, Ruby classes, methods and objects are Objective-C classes, methods and objects respectively. The converse is also true.  Objective-C classes, methods and objects are available in Ruby as if they were native.
+RubyMotion では、Ruby クラスのメソッドやオブジェクトは、Objective-C クラスのメソッドやオブジェクトでもあります。逆のこともまた真実と言えます。Objective-C クラスのメソッドやオブジェクトは Ruby ネイティブのように利用できます。
 
-By sharing the same object model infrastructure, Objective-C and RubyMotion APIs can be interchangeable at no additional performance expense.
+同じオブジェクトモデル構成を共有することで、Objective-C と RubyMotion の API はパフォーマンスの犠牲なしで相互に乗り入れできます。
 
 Objective-C Messages
 ~~~~~~~~~~~~~~~~~~~~
 
-RubyMotion lets you send and define Objective-C messages.
+RubyMotion では Objective-C のメッセージ定義やメッセージ送信ができます。
 
-An Objective-C message, also called a selector, can look different than a typical Ruby message, if it contains more than one argument.
+セレクタとも呼ばれる Objective-C のメッセージは、複数の引数をとる場合において一般的な Ruby とは異ります。
 
-Unlike Ruby messages, Objective-C messages contain keywords. Each argument has a keyword associated to it and the final Objective-C message is the combination of all keywords.
+Objective-C のメッセージには、Ruby のメッセージと異なり、キーワードがあります。各引数は関連づけられているキーワードを持ち、最終的に Objective-Cのメッセージは、すべてのキーワードの組み合わせとなります。
 
-Let's take the following piece of Objective-C code which draws a string.
+文字列を描画する Objective-C コード片を取り上げてみましょう。
 
 ----
 [string drawAtPoint:point withFont:font];
 ----
 
-In this code, +string+, +point+ and +font+ are variables. The message keywords are +drawAtPoint:+ and +withFont:+. The complete message is the combination of these keywords, +drawAtPoint:withFont:+ , which is sent to the +string+ object, passing the +point+ and +font+ objects as arguments.
+このコードでは  +string+ と +point+ 、 +font+ が変数です。メッセージのキーワードは +drawAtPoint:+ と +withFont:+ です。完全なメッセージはこれらのキーワードの組み合わせの +drawAtPoint:withFont:+ で、+point+ と +font+ オブジェクトが引数として +string+ オブジェクトにメッセージが送信されます。
 
-Objective-C messages can be sent from RubyMotion using a similar syntax.
+Objective-C のメッセージは RubyMotion から同じような構文で送信できます。
 
 ----
 string.drawAtPoint(point, withFont:font)
 ----
 
-It is important to keep in mind that the message being sent here is +drawAtPoint:withFont:+. To illustrate more, the same message can be manually dispatched using the +send+ method.
+ここで +drawAtPoint:withFont:+ が送信するメッセージと思い描いてください。より詳しく説明するために、+send+ メソッドを用いて同じメッセージを送信してみましょう。
 
 ----
 string.send(:'drawAtPoint:withFont:', point, font)
 ----
 
-Objective-C messages can also be defined in RubyMotion. Let's imagine we are building a class that should act as a proxy for our drawing code. The following piece of code defines the +drawAtPoint:withFont:+ message on the +DrawingProxy+ class.
+Objective-C のメッセージは RubyMotion でも定義できます。プロキシとして動作するクラスに、描画するためのコードを構築するところをイメージしてください。
+次のコード片は、+DrawingProxy+ クラスに +drawAtPoint:withFont:+ メッセージを定義します。
 
 ----
 class DrawingProxy
@@ -62,18 +63,18 @@ class DrawingProxy
 end
 ----
 
-TIP: The syntax used to define Objective-C selectors was added to RubyMotion and is not part of the Ruby standard.
+TIP: Objective-C のセレクタを定義するために用いられる構文は RubyMotion に追加され、これは Ruby の標準ではありません。
 
 Objective-C Interfaces
 ~~~~~~~~~~~~~~~~~~~~~~
 
-As Objective-C is the main language used to describe the iOS SDK, it is necessary to understand how to read Objective-C interfaces and how to use them from Ruby.
+Objective-C は iOS SDK を記述するメイン言語として使われ、Objective-C インタフェースの読み方や Ruby から使う方法について学ぶ必要があります。
 
-Objective-C interfaces can be found in Apple's iOS API reference and also in the iOS framework header (+.h+) files. 
+Objective-C インタフェースは Apple の iOS API リファレンスや、iOS framework のヘッダファイル (+.h+) で見ることができます。
 
-An Objective-C interface starts with either the minus or plus character, which is used to respectively declare instance or class methods. 
+Objective-C インタフェースは、クラスメソッドを宣言する場合は +、インスタンスメソッドを宣言する場合は - の文字から始まります。
 
-For example, the following interface declares the +foo+ instance method on the +Foo+ class.
+たとえば、以下は +Foo+ クラスに +foo+ というインスタンスメソッドを宣言するものです。
 
 ----
 @class Foo
@@ -81,7 +82,7 @@ For example, the following interface declares the +foo+ instance method on the +
 @end
 ----
 
-The next one declares the +foo+ class method on the same class.
+次は、同じクラスに +foo+ クラスメソッドを宣言するものです。
 
 ----
 @class Foo
@@ -89,11 +90,11 @@ The next one declares the +foo+ class method on the same class.
 @end
 ----
 
-NOTE: +(id)+ is the type information. Types are covered in an upcoming section, so you can omit them for now.
+NOTE: +(id)+ は型情報です。型については、あとのセクションで説明します。
 
-As seen in the previous section, arguments in Objective-C methods can be named with a keyword. The sum of all keywords form the message name, or selector.
+前のセクションでの説明のように、Objective-C のメソッドの引数はキーワードを持つことができます。すべてのキーワードをあわせたものが、メッセージ名やセレクターを形成します。
 
-The following interface declares the +sharedInstanceWithObject:andObject:+ class method on the +Test+ class.
+以下は、+sharedInstanceWithObject:andObject:+ クラスメソッドを +Test+ クラスに宣言するインタフェースです。
 
 ----
 @class Test
@@ -101,7 +102,7 @@ The following interface declares the +sharedInstanceWithObject:andObject:+ class
 @end
 ----
 
-This method can be called from Ruby like this.
+このメソッドは Ruby から次のように呼び出すことができます。
 
 ----
 # obj1 and obj2 are variables for the arguments.
@@ -111,7 +112,7 @@ instance = Test.sharedInstanceWithObject(obj1, andObject:obj2)
 Selector Shortcuts
 ~~~~~~~~~~~~~~~~~~
 
-The RubyMotion runtime provides convenience shortcuts for certain Objective-C selectors.
+RubyMotion ランタイムは特定の Objective-C セレクタに対して、便利なショートカットを用意しています。
 
 [options="header,autowidth"]
 |===============================
@@ -122,7 +123,7 @@ The RubyMotion runtime provides convenience shortcuts for certain Objective-C se
 | +setObject:forKey:+ | +[]=+
 |===============================
 
-As an example, the +setHidden:+ and +isHidden+ methods of +UIView+ can be called by using the +hidden=+ and +hidden?+ shortcuts.
+例として、+UIView+ の +setHidden:+ と +isHidden+ メソッドをショートカットを用いて呼び出してみましょう。ショートカットを用いるとそれぞれ +hidden=+ と +hidden?+ となります。
 
 ----
 view.hidden = true unless view.hidden?
@@ -131,15 +132,15 @@ view.hidden = true unless view.hidden?
 Builtin Classes
 ---------------
 
-Some of the built-in classes of RubyMotion are based on the http://developer.apple.com/library/ios/#documentation/Cocoa/Reference/Foundation/ObjC_classic/\_index.html[Foundation framework], the base layer of iOS.
+いくつかの RubyMotion の組み込みクラスは、iOS のベースレイアである http://developer.apple.com/library/ios/#documentation/Cocoa/Reference/Foundation/ObjC_classic/\_index.html[Foundation framework] をベースとしています。
 
-The Foundation framework is an Objective-C framework, but due to the fact that RubyMotion is based on the Objective-C runtime, the classes that it defines can be naturally re-used in RubyMotion.
+Foundation framework は Objective-C のフレームワークですが、RubyMotion が Objective-C runtime をベースとしてあるおかげで、組み込みクラスの定義で自然に Foundation framework が利用されています。
 
-Foundation class names typically start with the +NS+ prefix, which arguably stands for NeXTSTEP, the system for which the framework was originally built.
+Foundation クラスは一般的に +NS+ というプレフィックスから始まります。これはフレームワークが構築された当初のシステムである NeXTSTEP を表します。
 
-Foundation comes with the root object class, +NSObject+, as well as a set of primitive object classes. In RubyMotion, +Object+ is an alias to +NSObject+, making +NSObject+ the root class of all Ruby classes. Also, some of the built-in classes inherit from Foundation types.
+Foundation ではプリミティブなオブジェクトクラスと同様に +NSObject+ がルートクラスとしてあります。RubyMotion では、+Object+ は +NSObject+ の別名で、+NSObject+ はすべての Ruby クラスのルートクラスとなっています。また、いくつかの組み込みクラスは Foundation から継承しています。
 
-Here is a table showing the ancestors chain of a newly created class, +Hello+, as well as some of the Ruby built-in classes.
+ここで、いくつかの組み込みクラスと、新規に +Hello+ というクラスを作成した場合で、それぞれのクラスの祖先がどのようになるか示します。
 
 [options="header,autowidth"]
 |==================================
@@ -152,13 +153,14 @@ Here is a table showing the ancestors chain of a newly created class, +Hello+, a
 | +Time+     | +Comparable+ → +NSDate+ → +NSObject+ → +Kernel+
 |===================================
 
-A direct consequence of hosting the Ruby built-in classes on Foundation is that instances respond to more messages. For instance, the +NSString+ class defines the +uppercaseString+ method. Since the +String+ class is a subclass of +NSString+, strings created in Ruby also respond to that method.
+Ruby の組み込みクラスを Foundation 上に実装した結果、インスタンスがより多くのメッセージに応答するようになります。
+たとえば、+NSString+ クラスは +uppercaseString+ メソッドを定義します。+String+ クラスは +NSString+ のサブクラスなので、Ruby で作成した文字列もそのメソッドに応答します。
 
 ----
 'hello'.uppercaseString # => 'HELLO'
 ----
 
-Conversely, the Ruby interface of these built-in classes is implemented on their Foundation counterparts. For example, +Array+'s +each+ method is implemented on +NSArray+. This allows primitive types to always respond to the same interface, regardless of where they come from. +each+ will always work on all arrays.
+組み込みクラスの Ruby インタフェースは、それぞれ対応する Foundation 上に実装されます。例として、+Array+ の +each+ メソッドは +NSArray+ 上に実装されています。これにより、オブジェクトが Ruby で作られたのか Objective-C API で作られたのかに関係なく、常に同じインタフェースで応答することができます。+each+ はいつでもすべての Array オブジェクトで動きます。
 
 ----
 def iterate(ary)
@@ -169,84 +171,83 @@ iterate [42]
 iterate NSArray.arrayWithObject(42)
 ----
 
-But the main purpose of this design is to allow the exchange of primitive types between Objective-C and Ruby at no performance cost, since they don't have to be converted. This is important as most of the types that will be exchanged in a typical application are likely going to be built-in types. A +String+ object created in Ruby can have its memory address passed as the argument of an Objective-C method that expects an +NSString+.
+しかし、この設計の主な目的は Objective-C と Ruby との間でデータ変換が不要なため、パフォーマンスの犠牲なしにプリミティブな型の変換を行えることにあります。典型的なアプリケーションで変換される型の多くは組み込み型なので、このことは重要です。Ruby で作成した +String+ オブジェクトは、+NSString+ を期待する Objective-C メソッドの引数にできるメモリアドレスを持っています。
 
 Mutability
 ~~~~~~~~~~
 
-The Foundation framework ships a set of classes that have both mutable and immutable variants. Mutable objects can be modified, while immutable objects cannot.
+Foundation framework は mutable と immutable の両方をセットとして持っています。mutable オブジェクトは変更することができます。一方、immutable オブジェクトは変更できません。
 
-Immutable Foundation types in RubyMotion behave like frozen objects (objects which received the +freeze+ message).
+RubyMotion では、immutable は凍結されたオブジェクトのように振る舞います (+freeze+ メッセージを受信したオブジェクトのような振る舞いです)。
 
-As an example, changing the content of an +NSString+ is prohibited and an exception will be raised by the system if doing so. However, it is possible to change the content of an +NSMutableString+ instance.
+例として、+NSString+ の内容を変更することは禁止され、変更しようとすると例外が発生します。しかし、mutable である +NSMutableString+ インスタンスの内容は変更できます。
 
 ----
 NSString.new.strip!           # raises RuntimeError: can't modify frozen/immutable string
 NSMutableString.new.strip!    # works
 ----
 
-Strings created in RubyMotion inherit from +NSMutableString+, so they can be modified by default. The same goes for arrays and hashes.
+RubyMotion で作られる文字列は +NSMutableString+ を継承するので、文字列を変更することができます。Array や Hash も同様です。
 
-However, you must be aware that it is very common for iOS SDK APIs to return immutable types. In these cases, the +dup+ or +mutableCopy+ messages can be sent to the object in order to get a mutable version of it, that can be modified later on.
+しかし、iOS SDK API はごく一般的に immutable なオブジェクトを返すので注意しなければなりません。この場合、+dup+ や +mutableCopy+ メッセージを送信することで、mutable なオブジェクトを取得できます。そして内容を変更できるようになります。
 
 Interfacing with C
 ------------------
 
-You do not need to be a C programmer in order to use RubyMotion. However, some understanding of basic notions explained in this section will be required.
+RubyMotion を使用する際には、あなたが C プログラマである必要はありませんが、このセクションで説明されるいくつかの基本概念が必要となります。
+Objective-C は C 言語のスーパーセットです。そのため、Objective-C メソッドは C 言語の型を受け付けたり、返したりします。
 
-Objective-C is a superset of the C language. Objective-C methods can therefore accept and return C types.
+また、iOS SDK で使用されるメインのプログラミング言語は Objective-C ですが、いくつか C API でのみ使用できるものがあります。
 
-Also, while Objective-C is the main programming language used in the iOS SDK, some frameworks are only available in C APIs.
-
-RubyMotion comes with an interface that allows Ruby to deal with the C part of APIs. 
+RubyMotion は Ruby で C API を利用する対応するためのインタフェースがあります。
 
 Basic Types
 ~~~~~~~~~~~
 
-C, and indirectly Objective-C, has a set of basic types. It is common in iOS SDK APIs to accept or return these types.
+C 言語や間接的に Objective-C は変数に型があります。iOS SDK API では、型がついた変数を受け付けたり返したりするのが一般的です。
 
-An example are the following methods of +NSFileHandle+, which both respectively accept and return the C integer type, +int+.
+以下に例として +NSFileHandle+ のメソッドを示します。このメソッドは、C 言語の整数型 +int+ を受け付けて返します。
 
 ----
 - (id)initWithFileDescriptor:(int)fd;
 - (int)fileDescriptor;
 ----
 
-Basic C types cannot be created from Ruby directly, but are automatically converted from and to equivalent Ruby types. 
+基本的な C 言語の型付きの変数は Ruby から直接生成することができませんが、それと等しい Ruby の型によって自動的に変換されます。
 
-The following piece of code uses the two +NSFileHandle+ methods described above. The first one, +initWithFileDescriptor:+, is called by passing a +Fixnum+. The second one, +fileDescriptor+, is called and a +Fixnum+ is returned back to Ruby.
+以下のコード片は、上記 +NSFileHandle+ の二つのメソッドを使用します。はじめに、 +initWithFileDescriptor:+ メソッドが +Fixnum+ のオブジェクトを引数として呼び出されます。つぎに、 +fileDescriptor+ が呼び出され、 +Fixnum+ のオブジェクトを Ruby に返します。
 
 ----
 handle = NSFileHandle.alloc.initWithFileDescriptor(2)
 handle.fileDescriptor # => 2
 ----
 
-This table describes all basic C types and discusses how they are converted from and to Ruby types.
+この表は、すべての基本的な C 言語の型が、どのように Ruby の型と変換されるかを説明します。
 
 [options="header,autowidth"]
 |=========================================
 | C Type | From Ruby to C | From C to Ruby
-| +bool+ .2+.^| If the object is +false+ or +nil+, +false+, otherwise, +true+. Note: the +0+ fixnum will evaluate to +true+. .2+.^| Either +true+ or +false+.
+| +bool+ .2+.^| オブジェクトが +false+ または +nil+ の場合、 +false+。 それ以外の場合、 +true+。 Note: Fixnum の +0+ は C の型に変換されると +true+ と扱われるので注意。 .2+.^| +true+ または +false+。
 | +BOOL+
-| +char+ .5+.^| If the object is a +Fixnum+ or a +Bignum+, the value is returned. If the object is +true+ or +false+, +1+ or +0+ are respectively returned. If the object responds to the +to_i+ message, it is sent and the result is returned. .5+.^| Either a +Fixnum+ or a +Bignum+ object.
+| +char+ .5+.^| オブジェクトが +Fixnum+ または +Bignum+ の場合、その値が返されます。オブジェクトが +true+ または +false+ の場合、それぞれ +1+ または +0+ が返されます。 オブジェクトが +to_i+ メッセージに応答できる場合、+to_i+ メッセージを送信しその結果が返されます。 .5+.^| +Fixnum+ または +Bignum+ オブジェクト。
 | +short+
 | +int+
 | +long+
 | +long_long+
-| +float+ .2+.^| If the object is a +Float+, the value is returned. If the object is +true+ or +false+, +1.0+ or +0.0+ are respectively returned. If the object responds to the +to_f+ message, it is sent and the result is returned. .2+.^| A +Float+ object.
+| +float+ .2+.^| オブジェクトが +Float+ の場合, その値が返されます。オブジェクトが +true または +false+ の場合、それぞれ +1.0+ または +0.0+ が返されます。オブジェクトが +to_f+ メッセージに応答できる場合、+to_f+ メッセージを送信しその結果が返されます。 .2+.^| +Float+ オブジェクト。
 | +double+
 |=========================================
 
-When using an API that returns the +void+ C type, RubyMotion will return +nil+.
+C 言語の +void+ 型を返す API を使用するとき、RubyMotion は +nil+ を返します。
 
 Structures
 ~~~~~~~~~~
 
-C structures are mapped to classes in RubyMotion. Structures can be created in Ruby and passed to APIs expecting C structures. Similarly, APIs returning C structures will return an instance of the appropriate structure class.
+C 言語の構造体は RubyMotion ではクラスとしてマッピングされています。Ruby で生成した構造体のインスタンスは、C 言語の構造体を期待する API で使用できます。同様に、C 言語の構造体を返す API は、適切な構造体クラスのインスタンスを返します。
 
-A structure class has an accessor method for each field of the C structure it wraps.
+構造体クラスは C 言語の構造体の各フィールドをラップしたアクセサメソッドを持っています。
 
-As an example, the following piece of code creates a +CGPoint+ structure, sets its +x+ and +y+ fields, then passes it to the +drawAtPoint:withFont:+ method.
+例として、以下に +CGPoint+ 構造体のインスタンスを生成するコードを示します。インスタンスの +x+ と +y+ フィールドを設定し、+drawAtPoint:withFont:+ メソッドへ渡すコードとなっています。
 
 ----
 pt = CGPoint.new
@@ -255,14 +256,14 @@ pt.y = 200
 'Hello'.drawAtPoint(pt, withFont: font)
 ----
 
-It is possible to pass the field values directly to the constructor.
+フィールドの値はコンストラクタに直接渡すこともできます。
 
 ----
 pt = CGPoint.new(100, 200)
 'Hello'.drawAtPoint(pt, withFont: font)
 ----
 
-RubyMotion will also accept arrays as a convenience. They must contain the same number and type of objects expected in the structure.
+RubyMotion は Array オブジェクトも受け付けます。この場合、構造体の各フィールドと一致する値を Array に含む必要があります。
 
 ----
 'Hello'.drawAtPoint([100, 200], withFont: font)
@@ -271,9 +272,9 @@ RubyMotion will also accept arrays as a convenience. They must contain the same 
 Enumerations and Constants
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-C enumerations and constants are mapped as constants of the +Object+ class.
+C 言語の列挙子や定数は +Object+ クラスの定数としてマッピングされます。
 
-For instance, both +NSNotFound+ and +CGRectNull+, respectively an enumeration and a constant defined by Foundation, can be directly accessed.
+たとえば、+NSNotFound+ と +CGRectNull+ (それぞれ Foundation フレームワークで列挙子と定数が定義されています) は直接使用することができます。
 
 ----
 if ary.indexOfObject(obj) == NSNotFound
@@ -283,7 +284,7 @@ end
 view = UIView.alloc.initWithFrame(CGRectNull)
 ----
 
-IMPORTANT: Some enumerations or constants defined in the iOS SDK may start with a lower-case letter, like +kCLLocationAccuracyBest+ (starting with +k+). Because Ruby constants must always start with a capital letter, their names must be corrected by changing the case of the first letter, becoming +KCLLocationAccuracyBest+ (starting with +K+) in Ruby.
+IMPORTANT: iOS SDK でいくつか英小文字から始まるの列挙子や定数が定義されています。たとえば、+kCLLocationAccuracyBest+ (小文字の +k+ で始まる)。Ruby では定数は英大文字から始まらなければいけません。RubyMotion では +KCLLocationAccuracyBest+ (大文字の +K+ で始まる) と定数は英大文字から始まるように変換されます。
 
 ----
 locationManager.desiredAccuracy = kCLLocationAccuracyBest # NameError: undefined local variable or method
@@ -293,16 +294,16 @@ locationManager.desiredAccuracy = KCLLocationAccuracyBest # works
 Functions
 ~~~~~~~~~
 
-C functions are available as methods of the +Object+ class. Inline functions, which are implemented in the framework header files are also supported.
+C 言語の関数は、+Object+ クラスのメソッドとして使用できます。フレームワークのヘッダファイルで実装されているインライン関数もサポートしてます。
 
-As an example, the +CGPointMake+ function can be used in Ruby to create a +CGRect+ structure.
+例として、+CGMakePoint+ 関数は Ruby で +CGRect+ 構造体を生成するのに使用できます。
 
 ----
 pt = CGPointMake(100, 200)
 'Hello'.drawAtPoint(pt, withFont: font)
 ----
 
-IMPORTANT: Most functions in the iOS SDK start by a capital letter. For those who accept no argument, it is important to explicitely use parentheses when calling them, in order to avoid the expression to be evaluated as a constant lookup.
+IMPORTANT: iOS SDK のほとんどの関数は、英大文字から始まります。引数を取らない関数の場合には、定数として評価されないようにするため、明示的に括弧を使用することが重要です。
 
 ----
 NSHomeDirectory   # NameError: uninitialized constant NSHomeDirectory
@@ -312,17 +313,18 @@ NSHomeDirectory() # works
 Pointers
 ~~~~~~~~
 
-Pointers are a very basic data type of the C language. Conceptually, a pointer is a memory address that can point to an object.
+ポインターは C 言語において非常に基本的なデータタイプです。概念的に、ポインターはオブジェクトを指し示すメモリアドレスです。
 
-In the iOS SDK, pointers are typically used as arguments to return objects by reference. As an example, the +error+ argument of this +NSData+ method expects a pointer that will be set to an +NSError+ object in case of failure.
+iOS SDKでは、ポインターは引数や戻り値のオブジェクトを参照する際に一般的に使われています。例として、以下の +NSData+ のメソッドで +error+ 引数は、エラーが発生した際にポインターが設定されることが期待されます。
 
 ----
 - (BOOL)writeToFile:(NSString *)path options:(NSDataWritingOptions)mask error:(NSError **)errorPtr
 ----
 
-RubyMotion introduces the +Pointer+ class in order to create and manipulate pointers. The type of the pointer to create must be provided in the +new+ constructor. A pointer instance responds to +[]+ to dereference its memory address and +[]=+ to assign it to a new value.
+RubyMotion は、ポインターを扱うために +Pointer+ クラスを導入しています。
+ポインターを作成する際、ポインターの型を +new+ コンストラクタに与えなる必要があります。ポインターのメモリアドレスを間接参照するために +[]+ を、新たな値を割り当てるために +[]=+ を使うことができます。
 
-The +NSData+ method above can be used like this in Ruby.
+上記の +NSData+ メソッドは Ruby で次のように使用することができます。
 
 ----
 # Create a new pointer to the object type.
@@ -337,11 +339,11 @@ unless data.writeToFile(path, options: mask, error: error_ptr)
 end
 ----
 
-In the case above, we need a pointer to an object. +Pointer.new+ can also be used to create pointers to various types, including the basic C types, but also structures. 
+上記のケースでは、オブジェクトへのポインタを必要とします。 +Pointer.new+ はさまざまな C 言語の基本的な型はもちろん構造体へのポインタを作成することもできます。
 
-+Pointer.new+ accepts either a +String+, which should be one of the http://developer.apple.com/library/ios/#documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html[Objective-C runtime types] or a +Symbol+, which should be a shortcut. We recommend the use of shortcuts.
++Pointer.new+ は http://developer.apple.com/library/ios/#documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html[Objective-C runtime types] で示される +String+ かショートカットの +Symbol+ でなければなりません。ショートカットを使うことをおすすめします。
 
-Following is a table summarizing the pointers one can create.
+以下の表は、RubyMotion で作ることができるポインタをまとめたものです。
 
 [cols="m,m,m",options="header,autowidth"]
 |=======================================================
@@ -361,31 +363,32 @@ Following is a table summarizing the pointers one can create.
 | double *  | "d" | :double
 |=======================================================
 
-RubyMotion supports the creation of structure pointers, by passing their runtime type accordingly to +Pointer.new+, which can be retrieved by sending the +type+ message to the structure class in question. For instance, the following snippet creates a pointer to a +CGRect+ structure.
+RubyMotion は構造体のポインタ生成もサポートします。+type+ メッセージを構造体のオブジェクトに送信することで、構造体の型を取得できます。これを +Pointer.new+ へ渡すと、構造体のポインタが生成できます。たとえば、次のコード片は +CGRect+ 構造体のポインタを生成するものです。
 
 ----
 rect_ptr = Pointer.new(CGRect.type)
 ----
 
-Pointers to C characters, also called C strings, are automatically converted from and to +String+ objects by RubyMotion.
+C 言語の文字列へのポインタは、RubyMotion によって +String+ と自動的に相互変換されます。
 
 Function Pointers and Blocks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-C or Objective-C APIs accepting C function pointers or C blocks can be called by RubyMotion, by passing a +Proc+ object instead.
+RubyMotion では、C の関数ポインタや C Blocks を受け付ける C や Objective-C API は、引数に +Proc+ オブジェクトを渡すことで呼び出すことができます。
 
-Functions pointers are pretty rare in the iOS SDK, but C blocks are common. C blocks are an extension of the C language defined by Apple. The caret (+^+) character is used to define C blocks.
+iOS SDKにおいて、関数ポインタはレアな存在ですが、C Blocks は一般的に使われています。
+C Blocks は Apple によって定義された C 言語の拡張機能です。C Blocks の定義にキャレット (+^+) 文字が使われます。
 
-As an example, let's consider the +addObserverForName:object:queue:usingBlock:+ method of +NSNotificationCenter+, which accepts a C block as its last argument.
+例として、+addObserverForName:object:queue:usingBlock:+ メソッドの +NSNotificationCenter+ に注目してみましょう。それは最後の引数として C Blocks を受け付けます。
 
 ----
 - (id)addObserverForName:(NSString *)name object:(id)obj queue:(NSOperationQueue *)queue
       usingBlock:(void (^)(NSNotification *))block;
 ----
 
-The block in question returns +void+ and accepts one argument, a +NSNotification+ object.
+その Blocks は +void+ を返し、一つの引数 +NSNotification+ のオブジェクトを受け付けます。
 
-This method can be called from Ruby like this.
+このメソッドは、Ruby から次のように呼び出すことができます。
 
 ----
 notification_center.addObserverForName(name, object:object, queue:queue,
@@ -394,14 +397,15 @@ notification_center.addObserverForName(name, object:object, queue:queue,
   end)
 ----
 
-The +enumerateObjectsWithOptions:usingBlock:+ method of +NSArray+ presents a more complicated case of a C block, which accepts 3 arguments: the enumerated object, its index position in the array and a pointer to a boolean variable that can be set to +true+ to stop the enumeration.
++NSArray+ の +enumerateObjectsWithOptions:usingBlock:+ メソッドはより複雑な C Blocks のケースを差し出し、3 つの引数を
+受け付けます (列挙のオブジェクト、配列のインデックス番号と +true+ を設定することで列挙を停止できる boolean 変数へのポインタ)。
 
 ----
 - (void)enumerateObjectsWithOptions:(NSEnumerationOptions)opts
         usingBlock:(void (^)(id obj, NSUInteger idx, BOOL *stop))block;
 ----
 
-Assuming we want to stop at the 10th iteration:
+10 回目の列挙で停止する場合には、以下のようになります。
 
 ----
 ary.enumerateObjectsWithOptions(options, usingBlock:lambda do |obj, idx, stop_ptr|
@@ -409,75 +413,75 @@ ary.enumerateObjectsWithOptions(options, usingBlock:lambda do |obj, idx, stop_pt
 end)
 ----
 
-(Obviously this example is used for educational purposes, in RubyMotion there is no need to use this method, because +NSArray+ responds to the Ruby +Array+ interface which is much more elaborate.)
+(この例は RubyMotion の学習を目的としたもので、このメソッドを使う必要はありません。なぜなら、+NSArray+ は Ruby の +Array+ とに結びついていて、Ruby の +each+ を利用する方が手軽です。)
 
-IMPORTANT: The +Proc+ object must have the same number of arguments as the C function pointer or block, otherwise an exception will be raised at runtime.
+IMPORTANT: +Proc+ オブジェクトは、C の関数ポインタや、Blocks が引数と同じ数のブロックパラメータを用意しなければなりません。そうでなければ、実行時に例外が発生します。
 
-IMPORTANT: In case of a C function pointer argument, you need to make sure the +Proc+ object will not be prematurely collected. If the method will call the function pointer asynchronously, a reference to the +Proc+ object must then be kept. Memory management is discussed in the following section.
+IMPORTANT: C 言語の関数ポインタを引数とするケースでは、+Proc+ オブジェクトがメモリ管理により、処理の途中で回収されないようにする必要があります。もし非同期でメソッドが関数ポインタを呼び出す場合には、+Proc+ オブジェクトの参照を保持しておかなければなりません。メモリ管理については次のセクションで説明します。
 
 Memory Management
 -----------------
 
-RubyMotion provides automatic memory management; you do not need to reclaim unused objects.
+RubyMotion は自動的なメモリ管理を提供します。みなさんは、使わなくなったオブジェクトを解放したりする必要がありません。
 
-Since memory can be limited on iOS hardware, you must take care not to create large object graphs.
+iOS デバイスは Mac などと比べるとメモリは制限されているので、みなさんは巨大なオブジェクトを生成しないよう慎重になる必要があります。
 
-RubyMotion implements a form of garbage collection called reference counting. An object has an initial reference count of zero, is incremented when a reference to it is created and decremented when a reference is destroyed. When the count reaches zero, the object's memory is reclaimed by the collector.
+RubyMotion は参照カウントと呼ばれるガベージコレクションの形式を実装しています。オブジェクトは初期値として参照カウント 0 を持ちます。オブジェクトが生成されると参照カウントが加算され、破棄されると減算されます。参照カウントが 0 になると、ガベージコレクタによってオブジェクトのメモリ領域が解放されます。
 
-RubyMotion's memory management system is designed to simplify the development process. Unlike traditional Objective-C programming, object references are automatically created and destroyed by the system. It is very similar to Objective-C's ARC, in design, but it is implemented differently.
+RubyMotion のメモリ管理しシステムは開発プロセスを単純かするように設計されています。伝統的な Objective-C プログラミングとは異なり、オブジェクトの参照は自動的にシステムによって生成・破棄されます。これは Objective-C の ARC の設計と非常に類似していますが、実装は異なっています。
 
-CAUTION: Object cycles, when two or more objects refer to each other, are currently not handled by the runtime, but will be in future releases.
+CAUTION: 二つ以上のオブジェクトが互いを参照するような、循環参照は現在 RubyMotion ランタイムで処理されません。しかし、今後のリリースで対応する予定です。
 
-NOTE: Object collections are triggered by the system and are not deterministic. RubyMotion is based on the existing autorelease pool infrastructure. iOS creates and destroys autorelease pools for you, for instance, within the event run loop.
+NOTE: オブジェクトの回収はシステムにより引き起こされますが、いつ回収されるかは決定的ではありません。RubyMotion は既存の autorelease pool 構造をベースとしています。この autorelease pool は iOS が event run loop などで生成・破棄します。
 
 Objective-C  and CoreFoundation Objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Objects created by Objective-C or CoreFoundation-style APIs are automatically managed by RubyMotion. There is no need to send the +retain+, +release+ or +autorelease+ messages to them, or use the +CFRetain+ or +CFRelease+ functions.
+Objective-C や CoreFoundation-style API によって生成されるオブジェクトは、RubyMotion によって自動的に管理されます。+retain+ や +release+ 、+autorelease+ メッセージをオブジェクトに送信したり、+CFRetain+ や +CFRelease+ 関数を使う必要はありません。
 
-The following piece of code allocates two +NSDate+ objects using different constructions. In typical Objective-C, the returned objects would need to be differently managed. In RubyMotion both objects will be entitled to garbage-collection.
+つぎに二つの +NSDate+ オブジェクトを異なるコンストラクタを使って allocate するものです。典型的な Objective-C では、返された二つのオブジェクトは異なるメモリ管理が必要となります (+data1+ は +release+ などでプログラマが解放する必要があります) 。RubyMotion では、両方のオブジェクトはガベージコレクションの対象となります。
 
 ----
 date1 = NSDate.alloc.init
 date2 = NSDate.date
 ----
 
-In order to prevent an object from being collected, a reference must be created to it, such as setting an instance variable to it. This will make sure the object will be kept alive as long as the instance variable receiver is alive.
+オブジェクトを回収されないようにするには、インスタンス変数に設定するなどのように参照を生成する必要があります。インスタンス変数のレシーバが生きている限り、オブジェクトが確実に保持されるようになります。
 
 ----
 @date = date1   # date1 will not be collected until the instance variable receiver is collected
 ----
 
-There are other ways of creating references to an object, like setting a constant, using a class variable, adding the object to a container (such as +Array+ or +Hash+) and more. Objects created in RubyMotion and passed to Objective-C APIs will also be properly referenced if needed.
+オブジェクトの参照を生成する方法は他にもいくつかあります。定数の定義、クラス変数を使用、オブジェクトのコンテナに追加する (たとえば、+Array+ や +Hash+ など) などがあります。RubyMotion で生成されたオブジェクトで Objective-C API に渡されるものも、必要に応じて参照が生成されます。
 
 Immediate Types
 ~~~~~~~~~~~~~~~
 
-The +Fixnum+ and +Float+ types in RubyMotion are immediates; they don't use memory resources to be created. The runtime uses a technique called http://en.wikipedia.org/wiki/Tagged_pointer[tagged pointers] to implement this.
+RubyMotion では、+Fixnum+ と +Float+ 型は即値で、これらはオブジェクト用のメモリ領域を使用しません。RubyMotion ランタイムでは、http://en.wikipedia.org/wiki/Tagged_pointer[tagged pointers] と呼ばれるテクニックを使用してこれを実装しています。
 
-The ability to use these types without affecting the memory usage is important as a sizable part of a real-world app is spent in control drawing, which can make intensive use of arithmetic algorithms.
+メモリ使用無しでこれらの型が使えることは、アプリのかなりの部分が描画制御(算術アルゴリズムを大量に使用します) に費やされるので重要です。
 
 Concurrency
 -----------
 
-The ability to run code concurrently became critical as multicore processors appeared on iOS devices. RubyMotion has been designed around this purpose.
+iOS デバイスにマルチコアプロセッサが登場したので、コードを平行して実行させる能力は重要になりました。RubyMotion はこの目的に沿って設計されています。
 
-RubyMotion has the concept of virtual machine objects, which wrap the state of a thread of execution. A piece of code is running through a virtual machine.
+RubyMotion は、スレッドの実行状態をラップした virtual machine の概念を持ちます。コード片は virtual machine を介して実行されます。
 
-Virtual machines don't have locks and there can be multiple virtual machines running at the same time, concurrently.
+virtual machine はロックしないので、複数の virtual machine が同時に並行に動作できます。
 
-CAUTION: Unlike the mainstream Ruby implementation, http://en.wikipedia.org/wiki/Race_condition#Computing[race conditions] are possible in RubyMotion, since there is no http://en.wikipedia.org/wiki/Global_Interpreter_Lock[Global Interpreter Lock] (GIL) to prohibit threads from running concurrently. You must be careful to secure concurrent access to shared resources.
+CAUTION: CRuby の実装とは異なり、スレッドの平行実行を禁止する http://en.wikipedia.org/wiki/Global_Interpreter_Lock[Global Interpreter Lock] (GIL) がないため、RubyMotion では http://en.wikipedia.org/wiki/Race_condition#Computing[race conditions] が起こり得ます。共有リソースへ、同時にアクセスする際に注意が必要です。
 
-Different options are available to write concurrent code in RubyMotion.
+RubyMotion では平行動作するコードを記述する際に、次の異なる選択肢を利用できます。
 
 Threads and Mutexes
 ~~~~~~~~~~~~~~~~~~~
 
-The +Thread+ class spawns a new POSIX thread that will run concurrently with other threads. The +Mutex+ class wraps a POSIX mutex and can be used to isolate concurrent access to a shared resource.
++Thread+ クラスは POSIX スレッドを生成します。生成されたスレッドは他のスレッドと平行して動作します。+Mutex+ クラスは POSIX ミューテックスをラップしたもので、共有リソースへの同時アクセスを防止するのに使うことができます。
 
 Grand Central Dispatch
 ~~~~~~~~~~~~~~~~~~~~~~
 
-RubyMotion wraps the http://developer.apple.com/library/ios/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html[Grand Central Dispatch] (GCD) concurrency library under the +Dispatch+ module. It is possible to execute both synchronously and asynchronously blocks of code under concurrent or serial queues.
+RubyMotion は http://developer.apple.com/library/ios/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html[Grand Central Dispatch] (GCD) ライブラリを +Dispatch+ モジュールとしてラップしています。concurrent queue や serial queue のもとで同期・非同期 Blocks を実行することができます。
 
-Albeit more complicated to comprehend than regular threads, sometimes GCD offers a more elegant way to run code concurrently. GCD maintains for you a pool of threads and its APIs are architectured to avoid the need to use mutexes.
+普通のスレッドに比べて理解することが難しくなりますが、GCD は平行動作するエレガントなコードを提供してくれます。GCD はスレッドのプールを保持し、ミューテックスの使用しないで済むように API が構成されています。
