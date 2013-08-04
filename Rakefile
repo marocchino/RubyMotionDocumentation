@@ -1,9 +1,6 @@
 task :default => :doc
 
 task :doc do
-  system 'git checkout japanese'
-  system 'find . -name "*.html" -delete'
-
   Dir.glob('**/*.txt').each do |src|
     Dir.chdir(File.dirname(src)) do
       src = File.basename(src)
@@ -13,9 +10,4 @@ task :doc do
       end
     end
   end
-
-  system 'git checkout gh-pages'
-  msg = `git status`
-  system 'git add .'
-  system "git commit -m 'Sync gh-pages \n #{msg}'"
 end
